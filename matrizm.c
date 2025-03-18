@@ -3,12 +3,11 @@ Fecha: 13/02/2025
 Autor: Jair Santiago Vargas Saenz
 Materia: Sistemas Operativos
 Temas: Memoria dinámica - Programación modular - Compilación automática
-   Programa principal multiplicación de matrices
+   Programa principal con menú interactivo para vectores y matrices
 */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "modulo.h"
 
 typedef struct {
@@ -23,43 +22,75 @@ void ejecutarMultiplicacion(void *param) {
     multiplicarMatrices(datos->mA, datos->mB, datos->mC, datos->N);
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Uso: %s <tamaño de la matriz>\n", argv[0]);
-        return 1;
-    }
+int main() {
+    int opcion, N;
+    vectorDinamico vector;
+    vectorInicio(&vector);
 
-    int N = atoi(argv[1]);
-    if (N <= 0) {
-        printf("Error: El tamaño de la matriz debe ser un número positivo.\n");
-        return 1;
-    }
+    do {
+        printf("\nMenú Principal\n");
+        printf("1. Multiplicación de Matrices\n");
+        printf("2. Operaciones con Vectores Dinámicos\n");
+        printf("3. Salir\n");
+        printf("Seleccione una opción: ");
+        scanf("%d", &opcion);
 
-    int *mA = (int *)malloc(N * N * sizeof(int));
-    int *mB = (int *)malloc(N * N * sizeof(int));
-    int *mC = (int *)malloc(N * N * sizeof(int));
+        switch (opcion) {
+            case 1: {
+                printf("Ingrese el tamaño de la matriz (N): ");
+                scanf("%d", &N);
 
-    if (!mA || !mB || !mC) {
-        printf("Error al asignar memoria.\n");
-        return 1;
-    }
+                int *mA = malloc(N * N * sizeof(int));
+                int *mB = malloc(N * N * sizeof(int));
+                int *mC = malloc(N * N * sizeof(int));
 
-    inicializarMatriz(mA, N, 2);
-    inicializarMatriz(mB, N, 3);
+                if (!mA || !mB || !mC) {
+                    printf("Error al asignar memoria para las matrices.\n");
+                    return 1;
+                }
 
-    imprimirMatriz(mA, N, "Matriz A");
-    imprimirMatriz(mB, N, "Matriz B");
+                inicializarMatriz(mA, N, 2);
+                inicializarMatriz(mB, N, 3);
 
-    // Estructura para pasar parámetros
-    MatrizParams datos = {mA, mB, mC, N};
-    
-    // Medir tiempo con la nueva función
-    double tiempo = medir_tiempo(ejecutarMultiplicacion, &datos);
+                imprimirMatriz(mA, N, "Matriz A");
 
-    printf("\nMultiplicación de matrices tomó %f segundos en ejecutarse\n", tiempo);
-    imprimirMatriz(mC, N, "Matriz C (Resultado)");
+                imprimirMatriz(mB, N, "Matriz B");
 
-    liberarMemoria(mA, mB, mC);
+                MatrizParams datos = {mA, mB, mC, N};
+                double tiempo = medir_tiempo(ejecutarMultiplicacion, &datos);
+
+                imprimirMatriz(mC, N, "Matriz C");
+
+                printf("\nTiempo de ejecución: %f segundos\n", tiempo);
+
+                liberarMemoria(&mA, &mB, &mC);
+                break;
+            }
+
+            case 2: {
+                char *elemento = malloc(20 * sizeof(char));
+                printf("Ingrese una cadena para agregar al vector: ");
+                scanf("%s", elemento);
+                addVector(&vector, elemento);
+
+                printf("Elementos en el vector:\n");
+                for (int i = 0; i < totalVector(&vector); i++) {
+                    printf("%s ", (char *)getVector(&vector, i));
+                }
+                printf("\n");
+                break;
+            }
+
+            case 3:
+                freeVector(&vector);
+                printf("Saliendo...\n");
+                break;
+
+            default:
+                printf("Opción inválida. Intente de nuevo.\n");
+        }
+    } while (opcion != 3);
+
     return 0;
 }
 
