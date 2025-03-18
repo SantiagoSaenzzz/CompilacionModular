@@ -13,20 +13,39 @@ Temas: Memoria dinámica - Programación modular - Compilación automática
 #include <stdlib.h>
 #include <time.h>
 
-// Inicializa una matriz con un valor específico
+#define CAPACIDAD_INICIAL 4
+
+// Estructura para Vector Dinámico
+typedef struct vectorDinamico {
+    int capacidad;
+    int totalElementos;
+    void **elementos;
+} vectorDinamico;
+
+// Funciones para vectores dinámicos
+void vectorInicio(vectorDinamico *V);
+
+int totalVector(vectorDinamico *V);
+
+void addVector(vectorDinamico *V, void *elemento);
+
+void *getVector(vectorDinamico *V, int indice);
+
+void setVector(vectorDinamico *V, int indice, void *elemento);
+
+void borrarVector(vectorDinamico *V, int indice);
+
+void freeVector(vectorDinamico *V);
+
+// Funciones para matrices
 void inicializarMatriz(int *matriz, int N, int valor);
 
-// Mide el tiempo de ejecución de una función
 double medir_tiempo(void (*func)(void *), void *param);
 
-// Multiplica dos matrices de tamaño N x N
 void multiplicarMatrices(int *mA, int *mB, int *mC, int N);
 
-// Imprime una matriz en pantalla
 void imprimirMatriz(int *matriz, int N, const char *nombre);
 
-// Libera la memoria asignada dinámicamente
-void liberarMemoria(int *mA, int *mB, int *mC);
+void liberarMemoria(int **mA, int **mB, int **mC);
 
 #endif
-
