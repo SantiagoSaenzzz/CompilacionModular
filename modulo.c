@@ -10,6 +10,61 @@ Temas: Memoria dinámica - Programación modular - Compilación automática
 #include <time.h>
 #include "modulo.h"
 
+// Implementación del vector dinámico
+void vectorInicio(vectorDinamico *V) {
+    V->capacidad = CAPACIDAD_INICIAL;
+    V->totalElementos = 0;
+    V->elementos = malloc(sizeof(void *) * V->capacidad);
+}
+
+int totalVector(vectorDinamico *V) {
+    return V->totalElementos;
+}
+
+static void resizeVector(vectorDinamico *V, int capacidad) {
+    printf("Redimensión: %d a %d \n", V->capacidad, capacidad);
+    void **elementos = realloc(V->elementos, sizeof(void *) * capacidad);
+    if (elementos) {
+        V->elementos = elementos;
+        V->capacidad = capacidad;
+    }
+}
+
+void addVector(vectorDinamico *V, void *elemento) {
+    if (V->capacidad == V->totalElementos)
+        resizeVector(V, V->capacidad * 2);
+    V->elementos[V->totalElementos++] = elemento;
+}
+
+void *getVector(vectorDinamico *V, int indice) {
+    if (indice >= 0 && indice < V->totalElementos)
+        return V->elementos[indice];
+    return NULL;
+}
+
+void setVector(vectorDinamico *V, int indice, void *elemento) {
+    if (indice >= 0 && indice < V->totalElementos)
+        V->elementos[indice] = elemento;
+}
+
+void borrarVector(vectorDinamico *V, int indice) {
+    if (indice < 0 || indice >= V->totalElementos)
+        return;
+
+    for (int i = indice; i < V->totalElementos - 1; i++) {
+        V->elementos[i] = V->elementos[i + 1];
+    }
+    V->totalElementos--;
+
+    if (V->totalElementos > 0 && V->totalElementos == V->capacidad / 4)
+        resizeVector(V, V->capacidad / 2);
+}
+
+void freeVector(vectorDinamico *V) {
+    free(V->elementos);
+}
+
+// Implementación de funciones para matrices
 void inicializarMatriz(int *matriz, int N, int valor) {
     for (int i = 0; i < N * N; i++) {
         matriz[i] = valor + i;
@@ -27,15 +82,7 @@ void multiplicarMatrices(int *mA, int *mB, int *mC, int N) {
     }
 }
 
-//función para medir el tiempo de ejecución
-double medir_tiempo(void (*func)(void *), void *param) {
-    clock_t inicio, fin;
-    inicio = clock();
-    func(param);  // Llamada a la función con parámetro
-    fin = clock();
-    return ((double)(fin - inicio)) / CLOCKS_PER_SEC;
-}
-
+// Implementación de imprimirMatriz
 void imprimirMatriz(int *matriz, int N, const char *nombre) {
     printf("\n%s:\n", nombre);
     for (int i = 0; i < N; i++) {
@@ -46,9 +93,18 @@ void imprimirMatriz(int *matriz, int N, const char *nombre) {
     }
 }
 
-void liberarMemoria(int *mA, int *mB, int *mC) {
-    free(mA);
-    free(mB);
-    free(mC);
+double medir_tiempo(void (*func)(void *), void *param) {
+    clock_t inicio, fin;
+    inicio = clock();
+    func(param);
+    fin = clock();
+    return ((double)(fin - inicio)) / CLOCKS_PER_SEC;
 }
 
+// Función para liberar memoria
+void liberarMemoria(int **mA, int **mB, int **mC) {
+    free(*mA);
+    free(*mB);
+    free(*mC);
+    *mA = *mB = *mC = NULL;
+}
