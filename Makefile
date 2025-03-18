@@ -15,4 +15,3 @@ modulo.o: modulo.c modulo.h
 
 clean:
 	rm -f $(EXEC) *.o
-
